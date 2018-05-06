@@ -1,6 +1,9 @@
 #ifndef OBJLOADER_H
 #define OBJLOADER_H
 
+#include <iomanip>
+
+
 #include "bin/ray.h"
 #include "bin/hitablelist.h"
 #include "float.h"
@@ -12,14 +15,13 @@
 
 #include <iostream>
 #include <fstream>
-#include <stdlib.h>
-#include <string.h>
+#include <cstdlib>
+#include <string>
 #include <vector>
-#include <queue>
 
 using namespace std;
 
-hitable* objloader(char* filename) {
+hitable** objloader(string filename, int &elem) {
 	ifstream object;
 	object.open(filename);
 
@@ -27,14 +29,57 @@ hitable* objloader(char* filename) {
 		cout << "Failed to open file, returning NULL.\n";
 		return NULL;
 	}
+	//for object creation
+	hitable **boxlist = new hitable*[100000]; //bvh with max 100K elements
+	int j = 0;
+	material *grey = new lambertian(vec3(0.3, 0.3, 0.3));
 
+	//for file parsing
 	vector<vec3> vert;
 	vert.push_back(vec3(0,0,0)); //pushing dummy vertex
-	while (1) {
 
-		if (c == "v")
+	char *buffer = new char[20]; //character buffer for 
+	char delim = ' '; //assinging space as the delimiting character
+	char nl = '\n'; //newline character
+	
+	object.getline(buffer, 20, delim);
+	while (!object.eof()) {	
+		//it is a vertex
+		if (strcmp(buffer, "v") == 0) {
+			vector<float> point(3);
+			for (int i = 0; i < 3; i++) {
+				if (i == 2) object.getline(buffer, 20, nl);
+				else object.getline(buffer, 20, delim);
+				point[i] = atof(buffer);
+			}
+
+			vert.push_back(vec3(point[0], point[1], point[2]));
+		}
+
+		//create a face, ie a triangle
+		else if (strcmp(buffer, "f") == 0) {
+
+			vector<int> idx(3); //vector to store index value
+			//getlineting the vertex indicies
+			for (int i = 0; i < 3; i++) {
+				if (i == 2) object.getline(buffer, 20, nl);
+				else object.getline(buffer, 20, delim);
+				idx[i] = atoi(buffer);
+			}
+			// vec3 v1 = vert[idx[0]];
+			// vec3 v2 = vert[idx[1]];
+			// vec3 v3 = vert[idx[2]];
+			//use the stored index to getline the verticies
+			// boxlist[j++] = new triangle(vert[idx[0]], vert[idx[1]], vert[idx[2]], grey);
+		}
+
+		object.getline(buffer, 20, delim);//get the next line character
+		std::cout << '\r' << std::setw(6) << std::setfill('0') << vert.size() << std::flush;
 	}
 
+
+	elem = j+1;
+	return boxlist;
 }
 
 

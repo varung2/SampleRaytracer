@@ -1,4 +1,4 @@
-#define ELEM 4
+#define ELEM 1
 #define XDIM 300
 #define YDIM 300
 #define MAX 300*300
@@ -158,48 +158,55 @@ int main(int argc, char **argv) {
 	vec3 lookat(0,0,-1);
 	float dist_to_focus = (lookfrom-lookat).length() + 1.0;
 	float aperture = 0.001;
-
 	camera cam(lookfrom, lookat, vec3(0,1,0), 90, float(nx)/float(ny), aperture, dist_to_focus);
+	
 	hitable *list[ELEM];
 	hitable *world = new hitable_list(list, ELEM); //Elem is the predefined number of elements above
 	int l = 0;
+	//loading object
+	int elements;
+	hitable **object = objloader("bunny.obj", elements);
+	list[l++] = new bvh_node(object, elements, 0.0, 1.0);
+
+
+
 	//spheres
 	// list[l++] = new sphere(vec3(-0.1,-0.5,-1), .2, new lambertian(vec3(0.8, 0.3, 0.3)));
 	// list[l++] = new sphere(vec3(0, -100.5, -1), 100, new lambertian(vec3(0.8, 0.8, 0.0)));
 	// list[l++] = new sphere(vec3(1, 4.5, -1), 5, new metal(vec3(0.8, 0.6, 0.2), 0.0));
-	list[l++] = new sphere(vec3(-1, 0,-1), .5, new dielectric(1.5));
+	// list[l++] = new sphere(vec3(-1, 0,-1), .5, new dielectric(1.5));
 
 	//plane, first one is the normal, second is the center
-	//list[l++] = new plane(vec3(0, 1, 0), vec3(0, -0.4, -1), new lambertian(vec3(0.8, 0.3, 0.3)));
+	// list[l++] = new plane(vec3(0, 1, 0), vec3(0, -0.4, -1), new lambertian(vec3(0.8, 0.3, 0.3)));
 
 	//triangle initialization, points A, B, C
 	// list[l++] = new triangle(vec3(-1, -1, -1), vec3(1.6, 0.0, -0.8), vec3(1.6, 1.5, -1.0), new metal(vec3(0.8, 0.8, 0.3), 0.3));
 	
 
-	material *blue = new lambertian(vec3(0.2, 0.8, 1));
-	int na = 10000;
-	hitable **boxlist2 = new hitable*[10000];
-	for (int j = 0; j < na; j++) {
-		boxlist2[j] = new sphere(vec3(8*drand48(), 2*drand48(), 8*drand48()), .1, blue);
-	}
-	list[l++] = new translate(new bvh_node(boxlist2, na, 0.0, 1.0), vec3(-3, 1, -3.5)); 
+	// material *blue = new lambertian(vec3(0.2, 0.8, 1));
+	// int na = 10000;
+	// hitable **boxlist2 = new hitable*[10000];
+	// for (int j = 0; j < na; j++) {
+	// 	boxlist2[j] = new sphere(vec3(8*drand48(), 2*drand48(), 8*drand48()), .1, blue);
+	// }
+	// list[l++] = new translate(new bvh_node(boxlist2, na, 0.0, 1.0), vec3(-3, 1, -3.5)); 
 
 
-	material *black = new lambertian(vec3(0.5, 0.5, 0.5));
-	int ne = 5000;
-	hitable **box2 = new hitable*[5000];
-	for (int j = 0; j < ne; j++) {
-		box2[j] = new sphere(vec3(4*drand48(), 2*drand48(), 4*drand48()), .1, black);
-	}
-	list[l++] = new translate(new bvh_node(box2, ne, 0.0, 1.0), vec3(-3, 3, -5.5)); 
+	// material *grey = new lambertian(vec3(0.5, 0.5, 0.5));
+	// int ne = 5000;
+	// hitable **box2 = new hitable*[5000];
+	// for (int j = 0; j < ne; j++) {
+	// 	box2[j] = new sphere(vec3(4*drand48(), 2*drand48(), 4*drand48()), .1, grey);
+	// }
+	// list[l++] = new translate(new bvh_node(box2, ne, 0.0, 1.0), vec3(-3, 3, -5.5)); 
 
-	material *white = new lambertian(vec3(1, 1, 1));
-	int ng = 5000;
-	hitable **greenbox = new hitable*[5000];
-	for (int j = 0; j < ng; j++) {
-		greenbox[j] = new sphere(vec3(4*drand48(), 2*drand48(), 4*drand48()), .1, white);
-	}
-	list[l++] = new translate(new bvh_node(greenbox, ng, 0.0, 1.0), vec3(1, 3, -1.5)); 
+	// material *white = new lambertian(vec3(1, 1, 1));
+	// int ng = 5000;
+	// hitable **greenbox = new hitable*[5000];
+	// for (int j = 0; j < ng; j++) {
+	// 	greenbox[j] = new sphere(vec3(4*drand48(), 2*drand48(), 4*drand48()), .1, white);
+	// }
+	// list[l++] = new translate(new bvh_node(greenbox, ng, 0.0, 1.0), vec3(1, 3, -1.5)); 
 
 	//creating containers
 	vec3 dim(nx, ny, ns);
