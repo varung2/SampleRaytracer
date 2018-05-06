@@ -39,6 +39,7 @@
 #include "bin/translate.h"
 
 //#include "bvh/bvh_node.h"
+#include "objloader.h"
 
 using namespace std;
 using namespace cs225;
@@ -75,7 +76,7 @@ vec3 color(const ray& r, hitable *world, int depth) {
 		//this is for the objects it hits
 		ray scattered;
 		vec3 attenuation;
-		if (depth < 50 && rec.mat_ptr->scatter(r, rec, attenuation, scattered)) {
+		if (depth < 20 && rec.mat_ptr->scatter(r, rec, attenuation, scattered)) {
 			return (attenuation*color(scattered, world, depth+1));
 		}
 		else {
@@ -153,7 +154,12 @@ int main(int argc, char **argv) {
 	int ns = 50; //number of rays per pixel, for antialiasing
 	img.resize((unsigned int)nx, (unsigned int)ny);
 
-	camera cam(vec3(-4, 4, 6), vec3(0,0,-1), vec3(0,1,0), 90, float(nx)/float(ny));
+	vec3 lookfrom(-4, 4, 6);
+	vec3 lookat(0,0,-1);
+	float dist_to_focus = (lookfrom-lookat).length() + 1.0;
+	float aperture = 0.001;
+
+	camera cam(lookfrom, lookat, vec3(0,1,0), 90, float(nx)/float(ny), aperture, dist_to_focus);
 	hitable *list[ELEM];
 	hitable *world = new hitable_list(list, ELEM); //Elem is the predefined number of elements above
 	int l = 0;

@@ -84,11 +84,11 @@ bool triangle::hit(const ray& r, float tmin, float tmax, hit_record &rec) const 
 }
 
 bool triangle::bounding_box(float t0, float t1, aabb& box) const {
-	vec3 small(smol(a, b, c, 0), smol(a, b, c, 1), smol(a, b, c, 2));
-	vec3 large(larg(a, b, c, 0), larg(a, b, c, 1), larg(a, b, c, 2));
+	vec3 small(smol(a, b, c, 0), smol(a, b, c, 1), smol(a, b, c, 2)); //gives the point with the smallest values of the triangle
+	vec3 large(larg(a, b, c, 0), larg(a, b, c, 1), larg(a, b, c, 2)); //gives the point with the largest values of the triangle
 
 	box = aabb(small, large);
-	return false;
+	return true;
 }
 
 
