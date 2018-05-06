@@ -76,7 +76,7 @@ vec3 color(const ray& r, hitable *world, int depth) {
 		//this is for the objects it hits
 		ray scattered;
 		vec3 attenuation;
-		if (depth < 20 && rec.mat_ptr->scatter(r, rec, attenuation, scattered)) {
+		if (depth < 700 && rec.mat_ptr->scatter(r, rec, attenuation, scattered)) {
 			return (attenuation*color(scattered, world, depth+1));
 		}
 		else {
@@ -151,21 +151,21 @@ int main(int argc, char **argv) {
 	//image dimensions
 	int nx = 700;
 	int ny = 350;
-	int ns = 50; //number of rays per pixel, for antialiasing
+	int ns = 300; //number of rays per pixel, for antialiasing
 	img.resize((unsigned int)nx, (unsigned int)ny);
 
-	vec3 lookfrom(-4, 4, 6);
-	vec3 lookat(0,0,-1);
+	vec3 lookfrom(-20, -7, -9);
+	vec3 lookat(9,.5,-1);
 	float dist_to_focus = (lookfrom-lookat).length() + 1.0;
 	float aperture = 0.001;
-	camera cam(lookfrom, lookat, vec3(0,1,0), 90, float(nx)/float(ny), aperture, dist_to_focus);
+	camera cam(lookfrom, lookat, vec3(1.61,1,0), 60, float(nx)/float(ny), aperture, dist_to_focus);
 	
 	hitable *list[ELEM];
 	hitable *world = new hitable_list(list, ELEM); //Elem is the predefined number of elements above
 	int l = 0;
 	//loading object
 	int elements;
-	hitable **object = objloader("bunny.obj", elements);
+	hitable **object = objloader("bunny.obj", elements, 18);
 	list[l++] = new bvh_node(object, elements, 0.0, 1.0);
 
 

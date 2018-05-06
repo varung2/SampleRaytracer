@@ -21,7 +21,7 @@
 
 using namespace std;
 
-hitable** objloader(string filename, int &elem) {
+hitable** objloader(string filename, int &elem, int mult) {
 	ifstream object;
 	object.open(filename);
 
@@ -53,7 +53,7 @@ hitable** objloader(string filename, int &elem) {
 				point[i] = atof(buffer);
 			}
 
-			vert.push_back(vec3(point[0], point[1], point[2]));
+			vert.push_back(vec3(point[0]*mult, point[1]*mult, point[2]*mult));
 		}
 
 		//create a face, ie a triangle
@@ -70,15 +70,15 @@ hitable** objloader(string filename, int &elem) {
 			// vec3 v2 = vert[idx[1]];
 			// vec3 v3 = vert[idx[2]];
 			//use the stored index to getline the verticies
-			// boxlist[j++] = new triangle(vert[idx[0]], vert[idx[1]], vert[idx[2]], grey);
+			boxlist[j++] = new triangle(vert[idx[0]], vert[idx[1]], vert[idx[2]], grey);
 		}
 
 		object.getline(buffer, 20, delim);//get the next line character
-		std::cout << '\r' << std::setw(6) << std::setfill('0') << vert.size() << std::flush;
+		std::cout << "\rNumber of triangles: " << std::setw(6) << std::setfill('0') << vert.size() << ". Size of bvh: " << std::setw(6) << std::setfill('0') << j << std::flush;
 	}
 
-
-	elem = j+1;
+	std::cout << "\n";
+	elem = j;
 	return boxlist;
 }
 
