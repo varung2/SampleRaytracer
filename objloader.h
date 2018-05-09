@@ -21,7 +21,7 @@
 
 using namespace std;
 
-hitable** objloader(string filename, int &elem, int mult) {
+hitable* objloader(string filename, int mult, material* mat) {
 	ifstream object;
 	object.open(filename);
 
@@ -30,9 +30,9 @@ hitable** objloader(string filename, int &elem, int mult) {
 		return NULL;
 	}
 	//for object creation
-	hitable **boxlist = new hitable*[100000]; //bvh with max 100K elements
+	hitable **boxlist = new hitable*[10000000]; //bvh with max 100K elements
 	int j = 0;
-	material *grey = new lambertian(vec3(0.3, 0.3, 0.3));
+	material *grey = mat;
 
 	//for file parsing
 	vector<vec3> vert;
@@ -78,8 +78,8 @@ hitable** objloader(string filename, int &elem, int mult) {
 	}
 
 	std::cout << "\n";
-	elem = j;
-	return boxlist;
+	// elem = j;
+	return new bvh_node(boxlist, j, 0.0, 1.0);
 }
 
 

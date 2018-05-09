@@ -1,4 +1,4 @@
-#define ELEM 1
+#define ELEM 3
 #define XDIM 300
 #define YDIM 300
 #define MAX 300*300
@@ -24,6 +24,7 @@
 #include <string.h>
 #include <vector>
 #include <queue>
+#include <iomanip>
 
 //Raytracing header files
 #include "bin/ray.h"
@@ -39,6 +40,8 @@
 #include "bin/translate.h"
 
 //#include "bvh/bvh_node.h"
+
+//object loader file
 #include "objloader.h"
 
 using namespace std;
@@ -49,7 +52,7 @@ using namespace cs225;
 *
 *	CS 296 MP1
 *	
-*	Last Edited: 3/9/18
+*	Last Edited: 5/9/18
 *	@uthor: Varun Govind
 *		  
 */
@@ -71,16 +74,17 @@ vec3 color(const ray& r, hitable *world, int depth) {
 	
 	//object color
 	hit_record rec;
-	if (world->hit(r, 0.001, DBL_MAX, rec)) {
+	if (world->hit(r, 0.001, FLT_MAX, rec)) {
 		
 		//this is for the objects it hits
 		ray scattered;
 		vec3 attenuation;
+		vec3 emitted = rec.mat_ptr->emitted(rec.t, rec.t, rec.p);
 		if (depth < 700 && rec.mat_ptr->scatter(r, rec, attenuation, scattered)) {
-			return (attenuation*color(scattered, world, depth+1));
+			return emitted + (attenuation*color(scattered, world, depth+1));
 		}
 		else {
-			return vec3(0,0,0);
+			return emitted;			//vec3(0,0,0);
 		}
 	}
 
@@ -136,7 +140,7 @@ HSLAPixel renderHSLA(int j, int k, vec3 dim, hitable *world, camera &cam, bool o
 
 int main(int argc, char **argv) {
 	//start timer
-	clock_t begin = clock();
+	// clock_t begin = clock();
 
 	PNG img;
 	bool orth = false;
@@ -146,38 +150,43 @@ int main(int argc, char **argv) {
 		}
 	}
 
-	cout << "Placing objects in world...\n";
-	clock_t objectcreate = clock();
+	// cout << "Placing objects in world...\n";
+	// clock_t objectcreate = clock();
+	
 	//image dimensions
-	int nx = 700;
-	int ny = 350;
-	int ns = 300; //number of rays per pixel, for antialiasing
+	int nx = 1920;
+	int ny = 1080;
+	int ns = 1000; //number of rays per pixel, for antialiasing
 	img.resize((unsigned int)nx, (unsigned int)ny);
 
-	vec3 lookfrom(-20, -7, -9);
-	vec3 lookat(9,.5,-1);
+	vec3 lookfrom(15, 7, 10);
+	vec3 lookat(0,0,1);
 	float dist_to_focus = (lookfrom-lookat).length() + 1.0;
 	float aperture = 0.001;
-	camera cam(lookfrom, lookat, vec3(1.61,1,0), 60, float(nx)/float(ny), aperture, dist_to_focus);
+	camera cam(lookfrom, lookat, vec3(0,-1,0), 90, float(nx)/float(ny), aperture, dist_to_focus);
 	
 	hitable *list[ELEM];
 	hitable *world = new hitable_list(list, ELEM); //Elem is the predefined number of elements above
 	int l = 0;
+
+
+	material *greymat = new lambertian(new constant_texture(vec3(0.3, 0.3, 0.3)));
+	material *glass = new dielectric(1.3);
+	material *blue_tint_metal = new metal(vec3(0.8, 0.8, 0.89), 0.01);
+
+
 	//loading object
-	int elements;
-	hitable **object = objloader("bunny.obj", elements, 18);
-	list[l++] = new bvh_node(object, elements, 0.0, 1.0);
-
-
-
+	list[l++] = objloader("dragon.obj", 13, blue_tint_metal);
+	list[l++] = new translate(objloader("bunny.obj", 5, glass), vec3(6, 5, -8));
+//PREVIOUS OBJECTS
 	//spheres
 	// list[l++] = new sphere(vec3(-0.1,-0.5,-1), .2, new lambertian(vec3(0.8, 0.3, 0.3)));
-	// list[l++] = new sphere(vec3(0, -100.5, -1), 100, new lambertian(vec3(0.8, 0.8, 0.0)));
+	list[l++] = new sphere(vec3(0, -407, 0), 400, new lambertian(new constant_texture(vec3(0.2, 0.8, 1.0))));
 	// list[l++] = new sphere(vec3(1, 4.5, -1), 5, new metal(vec3(0.8, 0.6, 0.2), 0.0));
 	// list[l++] = new sphere(vec3(-1, 0,-1), .5, new dielectric(1.5));
 
 	//plane, first one is the normal, second is the center
-	// list[l++] = new plane(vec3(0, 1, 0), vec3(0, -0.4, -1), new lambertian(vec3(0.8, 0.3, 0.3)));
+	// list[l++] = new plane(vec3(0, -1, 0), vec3(0, -8, 0), new lambertian(new constant_texture(vec3(1, .8, 0.3))));
 
 	//triangle initialization, points A, B, C
 	// list[l++] = new triangle(vec3(-1, -1, -1), vec3(1.6, 0.0, -0.8), vec3(1.6, 1.5, -1.0), new metal(vec3(0.8, 0.8, 0.3), 0.3));
@@ -207,24 +216,28 @@ int main(int argc, char **argv) {
 	// 	greenbox[j] = new sphere(vec3(4*drand48(), 2*drand48(), 4*drand48()), .1, white);
 	// }
 	// list[l++] = new translate(new bvh_node(greenbox, ng, 0.0, 1.0), vec3(1, 3, -1.5)); 
+//END
 
 	//creating containers
 	vec3 dim(nx, ny, ns);
 	int max = nx*ny;
 
-	clock_t objectcreateend = clock();
-	cout << "Done. (time: " << (double)(objectcreateend - objectcreate) / CLOCKS_PER_SEC << "sec)\n";
+	// clock_t objectcreateend = clock();
+	// cout << "Done. (time: " << (double)(objectcreateend - objectcreate) / CLOCKS_PER_SEC << "sec)\n";
 
 	//Parallel/Multithreaded implimentation
 	volatile std::atomic<int> count(0);
+	volatile std::atomic<int> tx(0);
 	int cores = std::thread::hardware_concurrency();
 	cores -= 1;
 	vector<future<std::vector<rgbpacket>>> future_vector;
 	cout << "Starting Rendering with " << cores << " cores...\n";
 	while (cores--) {
 		future_vector.emplace_back(
-			std::async([=, &world, &cam, &dim, &orth, &count] {
+			std::async([=, &world, &cam, &dim, &orth, &count, &tx] {
 				vector<rgbpacket> stack;
+				tx++;
+				const int thread = tx;
 				while (true) {
 					int index = count++;
 					if (index >= max) {
@@ -236,19 +249,23 @@ int main(int argc, char **argv) {
 						rgbpacket curpx = render(j, k, dim, world, cam, orth);
 						curpx.idx = (unsigned int)index;
 						stack.push_back(curpx);
+						if (thread == 1 && index > 30) {
+							std::cout << "\rProgress: " << std::setw(8) << std::setfill('0') << count << " / " << max << std::flush;
+						}
 					}
 				}
 			})
 		);
 	}
+	cout << "\n";
 	std::vector<vector<rgbpacket>> fullstack;
 	for (int i = 0; i < (int)future_vector.size(); i++) {
 		fullstack.push_back(future_vector[i].get());
  	}
 
-	clock_t imgpars = clock();
-	cout << "Done. (time: " << (double)((imgpars - objectcreateend) / CLOCKS_PER_SEC) << "sec)\n";
-	cout << "Parsing image...\n";
+	// clock_t imgpars = clock();
+	// cout << "Done. (time: " << (double)((imgpars - objectcreateend) / CLOCKS_PER_SEC) << "sec)\n";
+	// cout << "Parsing image...\n";
 
 
 	//Parsing the image buffer
@@ -273,8 +290,8 @@ int main(int argc, char **argv) {
 
 	img.writeToFile("render.png");
 
-	clock_t end = clock();
-	cout << "Done. (time: " << double(end - imgpars) / CLOCKS_PER_SEC << "sec)\n";
-	cout << "Total Runtime " << double(end - begin) / CLOCKS_PER_SEC << " seconds\n";
+	// clock_t end = clock();
+	// cout << "Done. (time: " << double(end - imgpars) / CLOCKS_PER_SEC << "sec)\n";
+	// cout << "Total Runtime " << double(end - begin) / CLOCKS_PER_SEC << " seconds\n";
 	return 0;
 }
