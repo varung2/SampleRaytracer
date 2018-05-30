@@ -16,17 +16,14 @@ public:
 		e[0] = e0;
 		e[1] = e1;
 		e[2] = e2;
-		e[3] = 0.0;
-		e[4] = 0.0;
-		e[5] = 0.0;
 	}
 
-	vec3(float e0, float e1, float e2, float r, float g, float b) {
-		e[0] = e0; e[1] = e1; e[2] = e2; e[3] = r; e[4] = g; e[5] = b; 
-	}
+	// vec3(float e0, float e1, float e2, float r, float g, float b) {
+	// 	e[0] = e0; e[1] = e1; e[2] = e2; e[3] = r; e[4] = g; e[5] = b; 
+	// }
 	
 	//member variable, to hold xyz and color
-	float e[6];
+	float e[3];
 
 	//member functions
 	inline float x() const { return e[0]; }

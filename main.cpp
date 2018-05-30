@@ -1,4 +1,4 @@
-#define ELEM 3
+#define ELEM 1
 #define XDIM 300
 #define YDIM 300
 #define MAX 300*300
@@ -152,11 +152,25 @@ int main(int argc, char **argv) {
 
 	// cout << "Placing objects in world...\n";
 	// clock_t objectcreate = clock();
+	// cout << "Size of Box, 2 hitable*, triangle, sphere\n";
+	// aabb box;
+	// triangle tri;
+	// sphere ball;
+
+	// //materials
+	// lambertian lamb;
+	// dielectric glss;
+	// metal met;
+	// diffuse_light light;
+	// cout << sizeof(box) << ", " << sizeof(hitable*) << ", " << sizeof(hitable*) << ", " << sizeof(tri) << ", " << sizeof(ball) << endl;
 	
+	// cout << "Size of Materials: Lambertian, Dielectric, Metal, Light\n";
+	// cout << sizeof(lamb) << ", "<< sizeof(glss) << ", " << sizeof(met)  << ", " << sizeof(light) << endl;
+
 	//image dimensions
-	int nx = 1920;
-	int ny = 1080;
-	int ns = 1000; //number of rays per pixel, for antialiasing
+	int nx = 600;
+	int ny = 300;
+	int ns = 20; //number of rays per pixel, for antialiasing
 	img.resize((unsigned int)nx, (unsigned int)ny);
 
 	vec3 lookfrom(15, 7, 10);
@@ -176,12 +190,15 @@ int main(int argc, char **argv) {
 
 
 	//loading object
-	list[l++] = objloader("dragon.obj", 13, blue_tint_metal);
-	list[l++] = new translate(objloader("bunny.obj", 5, glass), vec3(6, 5, -8));
+	// list[l++] = objloader("dragon.obj", 13, blue_tint_metal);
+	// list[l++] = new translate(objloader("bunny.obj", 5, glass), vec3(6, 5, -8));
+
+	list[l++] = objloader("particles.obj", 6);
+
 //PREVIOUS OBJECTS
 	//spheres
 	// list[l++] = new sphere(vec3(-0.1,-0.5,-1), .2, new lambertian(vec3(0.8, 0.3, 0.3)));
-	list[l++] = new sphere(vec3(0, -407, 0), 400, new lambertian(new constant_texture(vec3(0.2, 0.8, 1.0))));
+	// list[l++] = new sphere(vec3(0, -407, 0), 400, new lambertian(new constant_texture(vec3(0.2, 0.8, 1.0))));
 	// list[l++] = new sphere(vec3(1, 4.5, -1), 5, new metal(vec3(0.8, 0.6, 0.2), 0.0));
 	// list[l++] = new sphere(vec3(-1, 0,-1), .5, new dielectric(1.5));
 

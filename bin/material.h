@@ -148,6 +148,7 @@ public:
 
 class lambertian : public material {
 public:
+	lambertian() {}
 	lambertian(texture *a) : albedo(a) {}
 	virtual bool scatter(const ray& r_in, const hit_record& rec, vec3& attenuation, ray& scattered) const {
 		vec3 target = rec.p + rec.normal + random_in_unit_sphere();
@@ -162,6 +163,7 @@ public:
 
 class metal : public material {
 public:
+	metal() {}
 	metal(const vec3& a, float f) : albedo(a) { if (f<1) fuz = f; else fuz = 1;}
 	virtual bool scatter(const ray& r_in, const hit_record& rec, vec3& attenuation, ray& scattered ) const {
 		vec3 reflected = reflect(unit_vector(r_in.direction()), rec.normal);
@@ -175,6 +177,7 @@ public:
 
 class dielectric : public material {
 public:
+	dielectric () {}
 	dielectric(float ri) : ref_idx(ri) {}
 	virtual bool scatter(const ray& r_in, const hit_record& rec, vec3& attenuation, ray& scattered) const {
 		vec3 outward_normal;
@@ -216,6 +219,7 @@ public:
 
 class diffuse_light : public material {
 	public :
+		diffuse_light() {}
 		diffuse_light(texture *a) : emit(a) {}
 		virtual bool scatter(const ray& r_in, const hit_record& rec, vec3& attenuation, ray& scattered) const {return false;}
 		virtual vec3 emitted(float u, float v, const vec3& p) const {
