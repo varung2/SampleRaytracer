@@ -19,7 +19,6 @@ Introduction *----------------------------------------------
 	based on what object is hit. There are several types of
 	objects/shapes used; triangles, spheres, planes, are 
 	some of them.
-
 	I generally followed through the book "Raytracing in One
 	Weekend," and I tried to emulate how Shirley wrote his
 	raytracer. I created the shapes triangle, and plane for
